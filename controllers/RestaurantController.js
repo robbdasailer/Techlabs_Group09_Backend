@@ -1,4 +1,4 @@
-const { User } = require("../models/db");
+const { Restaurant } = require("../models/db");
 const { body,validationResult } = require("express-validator");
 const { sanitizeBody } = require("express-validator");
 const apiResponse = require("../helpers/apiResponse");
@@ -6,29 +6,28 @@ const auth = require("../middlewares/jwt");
 var mongoose = require("mongoose");
 mongoose.set("useFindAndModify", false);
 
-// User Schema
-function UserData(data) {
+// Restaurant Schema
+function RestaurantData(data) {
 	this.id = data._id;
-	this.lastName = data.lastName;
-	this.firstName = data.firstName;
-	this.email = data.email;
-	this.password = data.password;
-	this.otp = data.otp;
+	this.name = data.name;
+	this.location = data.location;
+	this.address = data.address;
+	this.contactInformation = data.contactInformation;
+	this.picture = data.picture;
 }
 
 /**
- * User List.
+ * Restaurant List.
  * 
  * @returns {Object}
  */
-exports.UserList = [
-	//auth,
+exports.RestaurantList = [
+	auth,
 	function (req, res) {
-		console.log("helloooo ??");
 		try {
-			User.find({}).then((user)=>{
-				if(user.length > 0){
-					return apiResponse.successResponseWithData(res, "Operation success", user);
+			Restaurant.find({}).then((restaurant)=>{
+				if(restaurant.length > 0){
+					return apiResponse.successResponseWithData(res, "Operation success", restaurant);
 				}else{
 					return apiResponse.successResponseWithData(res, "Operation success", []);
 				}
@@ -42,23 +41,23 @@ exports.UserList = [
 ];
 
 /**
- * User Detail.
+ * Restaurant Detail.
  * 
  * @param {string}      id
  * 
  * @returns {Object}
  */
-exports.UserDetail = [
-	//auth,
+exports.RestaurantDetail = [
+	auth,
 	function (req, res) {
 		if(!mongoose.Types.ObjectId.isValid(req.params.id)){
 			return apiResponse.successResponseWithData(res, "Operation success", {});
 		}
 		try {
-			User.findOne({_id: req.params.id}).then(function(user){                
-				if(user !== null){
-					let userData = new UserData(user);
-					return apiResponse.successResponseWithData(res, "Operation success", userData);
+			Restaurant.findOne({_id: req.params.id}).then(function(restaurant){                
+				if(restaurant !== null){
+					let restaurantData = new RestaurantData(restaurant);
+					return apiResponse.successResponseWithData(res, "Operation success", restaurantData);
 				}else{
 					return apiResponse.successResponseWithData(res, "Operation success", {});
 				}
@@ -71,7 +70,7 @@ exports.UserDetail = [
 ];
 
 /**
- * User store.
+ * Restaurant store.
  * 
  * @param {string}      lastName 
  * @param {string}		firstName
@@ -81,14 +80,12 @@ exports.UserDetail = [
  * @returns {Object}
  */
 body()
-exports.UserStore = [
-	//auth,
-	body("lastName", "Name must not be empty.").isLength({ min: 1 }).trim(),
-	body("firstName", "Name must not be empty.").isLength({ min: 1 }).trim(),
-	body("email", "e-mail must not be empty.").isLength({ min: 1 }).trim(),
-	body("password", "password must fulfill conditions").isLength({ min: 5, max: 20 }).trim(),
-	//body("otp", "otp must not be empty.").isLength({ min: 1 }).trim(),
-
+exports.RestaurantStore = [
+	auth,
+	body("name", "Name must not be empty.").isLength({ min: 1 }).trim(),
+	body("coordinates", "coordinates must not be empty."),
+	body("address", "address must not be empty."),
+	body("contactInformation", "contactInformation must fulfill conditions"),
 	
 		//.custom((value,{req}) => {
 		// return User.findOne({isbn : value,user: req.user._id}).then(book => {
@@ -97,43 +94,40 @@ exports.UserStore = [
 		// 	}
 		// });
 		//}),
-	sanitizeBody("*").escape(), //sanitize for security reasons
+	//sanitizeBody("*").escape(), //sanitize for security reasons
 	(req, res, next) => {
 		try {
 			const errors = validationResult(req);
-			var user = new User(
-				{ 	lastName: req.body.lastName,
-					firstName: req.body.firstName,
-					email: req.body.email,
-					password: req.body.password,
-					confirmOTP: req.body.confirmOTP, 
+			var restaurant = new Restaurant(
+				{ 	name: req.body.name,
+					coordinates: req.body.coordinates,
+					address: req.body.address,
+					contactInformation: req.body.contactInformation,
+					picture: req.body.picture, 
 				});
 
 			if (!errors.isEmpty()) {
+
 				return apiResponse.validationErrorWithData(res, "Validation Error.", errors.array());
 			}
 			else {
-				//Save user
-				user.save(function (err) {
+				//Save restaurant
+				restaurant.save(function (err) {
 					if (err) { return apiResponse.ErrorResponse(res, err); }
-					let userData = new UserData(user);
-					return apiResponse.successResponseWithData(res,"User add Success.", userData);
+					let restaurantData = new RestaurantData(restaurant);
+					return apiResponse.successResponseWithData(res,"Restaurant add Success.", restaurantData);
 				});	
 			}
-			next()
+			
 		} catch (err) {
 			//throw error in json response with status 500. 
 			return apiResponse.ErrorResponse(res, err);
 		}
 	},
-	(req, res)=> {
-		console.log('Hi there')
-	}
-
 ];
 
 /**
- * User update.
+ * Restaurant update.
  * 
  * @param {string}      Name 
  * @param {string}      email
@@ -142,12 +136,13 @@ exports.UserStore = [
  * @returns {Object}
  */
 
-exports.UserUpdate = [
+exports.RestaurantUpdate = [
 	auth,
 	// input is validated using body method before performing the update //
-	body("Name", "Name must not be empty.").isLength({ min: 1 }).trim(),
-	body("email", "email must not be empty.").isLength({ min: 1 }).trim(),
-	body("password", "password must not be empty").isLength({ min: 1 }).trim(),
+	body("name", "Name must not be empty.").isLength({ min: 1 }).trim(),
+	body("coordinates", "coordinates must not be empty.").isLength({ min: 1 }).trim(),
+	body("address", "address must not be empty.").isLength({ min: 1 }).trim(),
+	body("contactInformation", "contactInformation must fulfill conditions").isLength({ min: 5, max: 20 }).trim(),
 	// .custom((value,{req}) => {
 	// 	return User.findOne({Name : value,user: req.user._id, _id: { "$ne": req.params.id }}).then(book => {
 	// 		if (book) {
@@ -159,12 +154,12 @@ exports.UserUpdate = [
 	(req, res) => {
 		try {
 			const errors = validationResult(req);
-			var user = new User(
-				{ 	lastName: req.bodylastName,
-					firstName: req.body.firstName,
-					email: req.body.email,
-					password: req.body.password,
-					_id:req.params.id
+			var restaurant = new Restaurant(
+				{ 	name: req.body.name,
+					coordinates: req.body.coordinates,
+					address: req.body.address,
+					contactInformation: req.body.contactInformation,
+					picture: req.body.picture, 
 				});
 
 			if (!errors.isEmpty()) {
@@ -174,21 +169,21 @@ exports.UserUpdate = [
 				if(!mongoose.Types.ObjectId.isValid(req.params.id)){
 					return apiResponse.validationErrorWithData(res, "Invalid Error.", "Invalid ID");
 				}else{
-					User.findById(req.params.id, function (err, foundUser) {
-						if(foundUser === null){
-							return apiResponse.notFoundResponse(res,"User not exists with this id");
+					Restaurant.findById(req.params.id, function (err, foundRestaurant) {
+						if(foundRestaurant === null){
+							return apiResponse.notFoundResponse(res,"Restaurant not exists with this id");
 						}else{
-							// find user by given id and check if the user making the request is the one who created the user //
-							if(foundUser.user.toString() !== req.user._id){
+							// find restaurant by given id and check if the restaurant making the request is the one who created the restaurant //
+							if(foundRestaurant.restaurant.toString() !== req.restaurant._id){
 								return apiResponse.unauthorizedResponse(res, "You are not authorized to do this operation.");
 							}else{
-								// update user and return success or error message accordingly //
-								User.findByIdAndUpdate(req.params.id, book, {},function (err) {
+								// update restaurant and return success or error message accordingly //
+								Restaurant.findByIdAndUpdate(req.params.id, book, {},function (err) {
 									if (err) { 
 										return apiResponse.ErrorResponse(res, err); 
 									}else{
-										let userData = new UserData(book);
-										return apiResponse.successResponseWithData(res,"User update Success.", userData);
+										let RestaurantData = new RestaurantData(book);
+										return apiResponse.successResponseWithData(res,"Restaurant update Success.", RestaurantData);
 									}
 								});
 							}
@@ -204,33 +199,33 @@ exports.UserUpdate = [
 ];
 
 /**
- * User Delete.
+ * Restaurant Delete.
  * 
  * @param {string}      id
  * 
  * @returns {Object}
  */
-exports.UserDelete = [
-	//auth,
+exports.RestaurantDelete = [
+	auth,
 	function (req, res) {
 		if(!mongoose.Types.ObjectId.isValid(req.params.id)){
 			return apiResponse.validationErrorWithData(res, "Invalid Error.", "Invalid ID");
 		}
 		try {
-			User.findById(req.params.id, function (err, foundUser) {
-				if(foundUser === null){
-					return apiResponse.notFoundResponse(res,"User not exists with this id");
+			Restaurant.findById(req.params.id, function (err, foundRestaurant) {
+				if(foundRestaurant === null){
+					return apiResponse.notFoundResponse(res,"Restaurant not exists with this id");
 				}else{
-					//Check authorized user
-					if(foundUser.user.toString() !== req.user._id){
+					//Check authorized restaurant
+					if(foundRestaurant.restaurant.toString() !== req.restaurant._id){
 						return apiResponse.unauthorizedResponse(res, "You are not authorized to do this operation.");
 					}else{
-						//delete User.
-						User.findByIdAndRemove(req.params.id,function (err) {
+						//delete Restaurant.
+						Restaurant.findByIdAndRemove(req.params.id,function (err) {
 							if (err) { 
 								return apiResponse.ErrorResponse(res, err); 
 							}else{
-								return apiResponse.successResponse(res,"User delete Success.");
+								return apiResponse.successResponse(res,"Restaurant delete Success.");
 							}
 						});
 					}

@@ -1,4 +1,4 @@
-const { User } = require("../models/db");
+const { Appointment } = require("../models/db");
 const { body,validationResult } = require("express-validator");
 const { sanitizeBody } = require("express-validator");
 const apiResponse = require("../helpers/apiResponse");
@@ -6,29 +6,25 @@ const auth = require("../middlewares/jwt");
 var mongoose = require("mongoose");
 mongoose.set("useFindAndModify", false);
 
-// User Schema
-function UserData(data) {
+// Appointment Schema
+function AppointmentData(data) {
 	this.id = data._id;
-	this.lastName = data.lastName;
-	this.firstName = data.firstName;
-	this.email = data.email;
-	this.password = data.password;
-	this.otp = data.otp;
+	this.food = data.food;
+	this.pickupDateAndTime = data.pickupDateAndTime;
 }
 
 /**
- * User List.
+ * Appointment List.
  * 
  * @returns {Object}
  */
-exports.UserList = [
+exports.AppointmentList = [
 	//auth,
 	function (req, res) {
-		console.log("helloooo ??");
 		try {
-			User.find({}).then((user)=>{
-				if(user.length > 0){
-					return apiResponse.successResponseWithData(res, "Operation success", user);
+			Appointment.find({}).then((appointment)=>{
+				if(appointment.length > 0){
+					return apiResponse.successResponseWithData(res, "Operation success", appointment);
 				}else{
 					return apiResponse.successResponseWithData(res, "Operation success", []);
 				}
@@ -48,17 +44,17 @@ exports.UserList = [
  * 
  * @returns {Object}
  */
-exports.UserDetail = [
+exports.AppointmentDetail = [
 	//auth,
 	function (req, res) {
 		if(!mongoose.Types.ObjectId.isValid(req.params.id)){
 			return apiResponse.successResponseWithData(res, "Operation success", {});
 		}
 		try {
-			User.findOne({_id: req.params.id}).then(function(user){                
+			Appointment.findOne({_id: req.params.id}).then(function(user){                
 				if(user !== null){
-					let userData = new UserData(user);
-					return apiResponse.successResponseWithData(res, "Operation success", userData);
+					let appointmentData = new AppointmentData(user);
+					return apiResponse.successResponseWithData(res, "Operation success", appointmentData);
 				}else{
 					return apiResponse.successResponseWithData(res, "Operation success", {});
 				}
@@ -73,20 +69,16 @@ exports.UserDetail = [
 /**
  * User store.
  * 
- * @param {string}      lastName 
- * @param {string}		firstName
- * @param {string}      email
- * @param {string}      password
+ * @param {string}      food
+ * @param {string}		pickupDateAndTime
  * 
  * @returns {Object}
  */
 body()
-exports.UserStore = [
+exports.AppointmentStore = [
 	//auth,
-	body("lastName", "Name must not be empty.").isLength({ min: 1 }).trim(),
-	body("firstName", "Name must not be empty.").isLength({ min: 1 }).trim(),
-	body("email", "e-mail must not be empty.").isLength({ min: 1 }).trim(),
-	body("password", "password must fulfill conditions").isLength({ min: 5, max: 20 }).trim(),
+	body("food", "food must not be empty.").isLength({ min: 1 }).trim(),
+	body("pickupDateAndTime", "Pickup Date and Time must not be empty.").isLength({ min: 1 }).trim(),
 	//body("otp", "otp must not be empty.").isLength({ min: 1 }).trim(),
 
 	
@@ -101,23 +93,20 @@ exports.UserStore = [
 	(req, res, next) => {
 		try {
 			const errors = validationResult(req);
-			var user = new User(
-				{ 	lastName: req.body.lastName,
-					firstName: req.body.firstName,
-					email: req.body.email,
-					password: req.body.password,
-					confirmOTP: req.body.confirmOTP, 
+			var appointment = new Appointment(
+				{ 	food: req.body.food,
+					pickupDateAndTime: req.body.pickupDateAndTime,
 				});
 
 			if (!errors.isEmpty()) {
 				return apiResponse.validationErrorWithData(res, "Validation Error.", errors.array());
 			}
 			else {
-				//Save user
-				user.save(function (err) {
+				//Save appointment
+				appointment.save(function (err) {
 					if (err) { return apiResponse.ErrorResponse(res, err); }
-					let userData = new UserData(user);
-					return apiResponse.successResponseWithData(res,"User add Success.", userData);
+					let appointmentData = new AppointmentData(appointment);
+					return apiResponse.successResponseWithData(res,"User add Success.", appointmentData);
 				});	
 			}
 			next()
@@ -126,28 +115,23 @@ exports.UserStore = [
 			return apiResponse.ErrorResponse(res, err);
 		}
 	},
-	(req, res)=> {
-		console.log('Hi there')
-	}
 
 ];
 
 /**
  * User update.
  * 
- * @param {string}      Name 
- * @param {string}      email
- * @param {string}      password
+ * @param {string}      food 
+ * @param {string}      pickupDateAndTime
  * 
  * @returns {Object}
  */
 
-exports.UserUpdate = [
+exports.PickupDateAndTimeUpdate = [
 	auth,
 	// input is validated using body method before performing the update //
-	body("Name", "Name must not be empty.").isLength({ min: 1 }).trim(),
-	body("email", "email must not be empty.").isLength({ min: 1 }).trim(),
-	body("password", "password must not be empty").isLength({ min: 1 }).trim(),
+	body("food", "food must not be empty.").isLength({ min: 1 }).trim(),
+	body("pickupDateAndTime", "pickupDateAndTime must not be empty.").isLength({ min: 1 }).trim(),
 	// .custom((value,{req}) => {
 	// 	return User.findOne({Name : value,user: req.user._id, _id: { "$ne": req.params.id }}).then(book => {
 	// 		if (book) {
@@ -159,12 +143,9 @@ exports.UserUpdate = [
 	(req, res) => {
 		try {
 			const errors = validationResult(req);
-			var user = new User(
-				{ 	lastName: req.bodylastName,
-					firstName: req.body.firstName,
-					email: req.body.email,
-					password: req.body.password,
-					_id:req.params.id
+			var appointment = new Appointment(
+				{ 	food: req.body.food,
+					pickupDateAndTime: req.body.pickupDateAndTime,
 				});
 
 			if (!errors.isEmpty()) {
@@ -174,21 +155,21 @@ exports.UserUpdate = [
 				if(!mongoose.Types.ObjectId.isValid(req.params.id)){
 					return apiResponse.validationErrorWithData(res, "Invalid Error.", "Invalid ID");
 				}else{
-					User.findById(req.params.id, function (err, foundUser) {
-						if(foundUser === null){
-							return apiResponse.notFoundResponse(res,"User not exists with this id");
+					Appointment.findById(req.params.id, function (err, foundAppointment) {
+						if(foundAppointment === null){
+							return apiResponse.notFoundResponse(res,"Appointment not exists with this id");
 						}else{
-							// find user by given id and check if the user making the request is the one who created the user //
-							if(foundUser.user.toString() !== req.user._id){
+							// find appointment by given id and check if the appointment making the request is the one who created the user //
+							if(foundAppointment.appointment.toString() !== req.appointment._id){
 								return apiResponse.unauthorizedResponse(res, "You are not authorized to do this operation.");
 							}else{
-								// update user and return success or error message accordingly //
-								User.findByIdAndUpdate(req.params.id, book, {},function (err) {
+								// update appointment and return success or error message accordingly //
+								Appointment.findByIdAndUpdate(req.params.id, appointment, {},function (err) {
 									if (err) { 
 										return apiResponse.ErrorResponse(res, err); 
 									}else{
-										let userData = new UserData(book);
-										return apiResponse.successResponseWithData(res,"User update Success.", userData);
+										let appointmentData = new AppointmentData(appointment);
+										return apiResponse.successResponseWithData(res,"Appointment update Success.", appointmentData);
 									}
 								});
 							}
@@ -217,20 +198,20 @@ exports.UserDelete = [
 			return apiResponse.validationErrorWithData(res, "Invalid Error.", "Invalid ID");
 		}
 		try {
-			User.findById(req.params.id, function (err, foundUser) {
-				if(foundUser === null){
-					return apiResponse.notFoundResponse(res,"User not exists with this id");
+			Appointment.findById(req.params.id, function (err, foundAppointment) {
+				if(foundAppointment === null){
+					return apiResponse.notFoundResponse(res,"Appointment not exists with this id");
 				}else{
-					//Check authorized user
-					if(foundUser.user.toString() !== req.user._id){
+					//Check authorized appointment
+					if(foundAppointment.appointment.toString() !== req.appointment._id){
 						return apiResponse.unauthorizedResponse(res, "You are not authorized to do this operation.");
 					}else{
-						//delete User.
-						User.findByIdAndRemove(req.params.id,function (err) {
+						//delete Appointment.
+						Appointment.findByIdAndRemove(req.params.id,function (err) {
 							if (err) { 
 								return apiResponse.ErrorResponse(res, err); 
 							}else{
-								return apiResponse.successResponse(res,"User delete Success.");
+								return apiResponse.successResponse(res,"Appointment delete Success.");
 							}
 						});
 					}

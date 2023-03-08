@@ -4,25 +4,18 @@ const Schema = mongoose.Schema;
 // Create the Restaurant schema
 const RestaurantSchema = new Schema({
     name: { type: String, required: true },
-    address: { type: String, required: true },
-    contactInformation: { type: String, required: true },
-});
-
-// Create the FoodItem schema
-const FoodItemSchema = new Schema({
-    restaurantName: { type: String, required: true },
-    name: { type: String, required: true },
-    type: { type: String, required: true },
-    quantity: { type: Number, required: true },
-    expirationDate: { type: Date, required: true },
-});
-
-// Create the Order schema
-const OrderSchema = new Schema({
-    restaurantName: { type: String, required: true },
-    foodItems: [{ type: Schema.Types.ObjectId, ref: 'FoodItem' }],
-    quantity: { type: Number, required: true },
-    deliveryDate: { type: Date, required: true },
+    coordinates: { type: [Number], required: true },      
+    address: { 
+        street: String,
+        number: Number,
+        city: String,
+        postalCode: Number,
+        },
+    contactInformation: { 
+        phone: {type: String, required: true },
+        email: {type: String, required: true },
+    },
+    picture: { type: String},
 });
 
 // Create the User schema
@@ -32,6 +25,8 @@ const UserSchema = new Schema({
     email: { type: String, required: true },
     password: { type: String, required: true },
     confirmOTP: { type: String, required: true },
+    isConfirmed: { type: Boolean, required: true, default: false },
+    status: { type: Boolean, required: true, default: true },
     type: { type: String, required: true, default: 'DRIVER'},
 });
 
@@ -39,14 +34,25 @@ const UserSchema = new Schema({
 const RouteSchema = new Schema({
     startPoint: { type: String, required: true },
     endPoint: { type: String, required: true },
-    foodItems: [{ type: Schema.Types.ObjectId, ref: 'FoodItem' }],
+   // order: [RestaurantSchema.name], //How can I refer to the name of the restarant?
 });
 
-// Create the Restaurant, FoodItem, Order, and Route models
-const Restaurant = mongoose.model('Restaurant', RestaurantSchema);
-const FoodItem = mongoose.model('FoodItem', FoodItemSchema);
-const Order = mongoose.model('Order', OrderSchema);
-const Route = mongoose.model('Route', RouteSchema);
-const User = mongoose.model('User', UserSchema);
+// Create the FoodItem schema
+const FoodItemSchema = new Schema({
+    name: {type: String, required: true},
+    unit: { type: String, enum: ['kg','liter','Stk'], required: true },
+    quantity: { type: Number, required: true},
+})
 
-module.exports = { Restaurant, FoodItem, Order, Route, User };
+// Create the Appointment schema
+const AppointmentSchema = new Schema({
+    food: [FoodItemSchema],
+    pickupDateAndTime: {type: Date, required: true},
+})
+
+// Create the Restaurant, FoodItem, Order, and Route models // What for?
+const Restaurant = mongoose.model('Restaurant', RestaurantSchema);
+const User = mongoose.model('User', UserSchema);
+const Route = mongoose.model('Route', RouteSchema);
+const Appointment = mongoose.model('Appointment', AppointmentSchema)
+module.exports = { Restaurant, User, Route, Appointment };
