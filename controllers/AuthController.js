@@ -1,10 +1,10 @@
 const { User } = require("../models/db");
-const { body,validationResult } = require("express-validator");
+const { body, check, validationResult } = require("express-validator");
 const { sanitizeBody } = require("express-validator");
 //helper file to prepare responses.
 const apiResponse = require("../helpers/apiResponse");
 const utility = require("../helpers/utility");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const mailer = require("../helpers/mailer");
 const { constants } = require("../helpers/constants");
@@ -16,7 +16,8 @@ const { constants } = require("../helpers/constants");
  * @param {string}      lastName
  * @param {string}      email
  * @param {string}      password
- *
+ * @param {string}      type
+ * 
  * @returns {Object}
  */
 exports.register = [
@@ -34,6 +35,8 @@ exports.register = [
 			});
 		}),
 	body("password").isLength({ min: 6 }).trim().withMessage("Password must be 6 characters or greater."),
+	check("type").isIn(['DRIVER', 'RESTAURANT']),
+
 	// Sanitize fields.
 	sanitizeBody("firstName").escape(),
 	sanitizeBody("lastName").escape(),
