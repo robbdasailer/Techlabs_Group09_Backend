@@ -140,7 +140,6 @@ var router = express.Router();
  *         - pickupDateAndTime
  *         - restaurant
  *         - coordinates
-
  */
 
 /**
@@ -148,6 +147,7 @@ var router = express.Router();
  * /appointment/:
  *   get:
  *     summary: Retrieve a list of appointments
+ *     tags: [Appointments]
  *     description: Retrieve a list of all appointments from the database
  *     responses:
  *       200:
