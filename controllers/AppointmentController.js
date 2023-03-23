@@ -127,7 +127,7 @@ exports.AppointmentStore = [
  * @returns {Object}
  */
 
-exports.PickupDateAndTimeUpdate = [
+exports.AppointmentUpdate = [
 	auth,
 	// input is validated using body method before performing the update //
 	body("food", "food must not be empty.").isLength({ min: 1 }).trim(),
@@ -191,7 +191,7 @@ exports.PickupDateAndTimeUpdate = [
  * 
  * @returns {Object}
  */
-exports.UserDelete = [
+exports.AppointmentDelete = [
 	//auth,
 	function (req, res) {
 		if(!mongoose.Types.ObjectId.isValid(req.params.id)){

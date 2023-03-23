@@ -32,6 +32,7 @@ var router = express.Router();
  * @openapi
  * /api/user/:
  *   get:
+ *     tags: [Users]
  *     summary: get all users 
  *     responses:
  *       200:
@@ -50,6 +51,7 @@ router.get("/", UserController.UserList); //should not provide OTP and password 
  * @openapi
  * /api/user/{id}:
  *   get:
+ *     tags: [Users]
  *     summary: Get a user by ID
  *     parameters:
  *       - in: path
@@ -72,6 +74,7 @@ router.get("/:id", UserController.UserDetail); //should not provide OTP and pass
  * @openapi
  * /api/user/:
  *   post:
+ *     tags: [Users]
  *     summary: This adds a new user 
  *     requestBody:
  *       description: add a new user
@@ -91,6 +94,7 @@ router.post("/", UserController.UserStore);
  * @openapi
  * /api/user/{id}:
  *   put:
+ *     tags: [Users]
  *     summary: This updates a user 
  *     requestBody:
  *       description: update a user
@@ -117,6 +121,7 @@ router.put("/:id", UserController.UserUpdate);
  * @openapi
  * /api/user/{id}:
  *   delete:
+ *     tags: [Users]
  *     summary: This deletes a user 
  *     parameters:
  *       - in: path

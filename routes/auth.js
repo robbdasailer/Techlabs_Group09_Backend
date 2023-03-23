@@ -32,6 +32,7 @@ var router = express.Router();
  * @openapi
  * /api/auth/register:
  *   post:
+ *     tags: [Authentication]
  *     summary: This registers a user 
  *     requestBody:
  *       description: registration
@@ -51,6 +52,7 @@ router.post("/register", AuthController.register);
  * @openapi
  * /api/auth/login:
  *   post:
+ *     tags: [Authentication]
  *     summary: This logs a user in
  *     requestBody:
  *       description: login

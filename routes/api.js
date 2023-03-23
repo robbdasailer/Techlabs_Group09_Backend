@@ -2,7 +2,7 @@ var express = require("express");
 var authRouter = require("./auth");
 var userRouter = require("./user");
 var restaurantRouter = require("./restaurant");
-// var appointmentRouter = require(".appointment");
+var appointmentRouter = require("./appointment");
 var app = express();
 
 const swaggerJsdoc = require('swagger-jsdoc');
@@ -27,6 +27,6 @@ app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use("/auth/", authRouter);
 app.use("/user/", userRouter);
 app.use("/restaurant/", restaurantRouter);
-// app.use("/appointment", appointmentRouter);
+app.use("/appointment/", appointmentRouter);
 
 module.exports = app;
