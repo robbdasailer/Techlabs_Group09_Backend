@@ -16,6 +16,7 @@ const RestaurantSchema = new Schema({
         email: {type: String, required: true },
     },
     picture: { type: String},
+    employees: [{type: Schema.Types.ObjectId, ref: 'User', required: true}],
 });
 
 // Create the User schema
@@ -27,7 +28,7 @@ const UserSchema = new Schema({
     confirmOTP: { type: String, required: true },
     isConfirmed: { type: Boolean, required: true, default: false },
     status: { type: Boolean, required: true, default: true },
-    type: { type: String, required: true, default: 'DRIVER'},
+    type: { type: String, enum: ['DRIVER','EMPLOYEE'], required: true, default: 'DRIVER'},
 });
 
 // Create the Route schema
@@ -40,7 +41,7 @@ const RouteSchema = new Schema({
 // Create the FoodItem schema
 const FoodItemSchema = new Schema({
     name: {type: String, required: true},
-    unit: { type: String, enum: ['kg','liter','Stk'], required: true },
+    unit: { type: String, enum: ['KG','LITER','PIECE','BOX'], required: true },
     quantity: { type: Number, required: true},
 })
 
@@ -48,6 +49,9 @@ const FoodItemSchema = new Schema({
 const AppointmentSchema = new Schema({
     food: [FoodItemSchema],
     pickupDateAndTime: {type: Date, required: true},
+    driver: { type: Schema.Types.ObjectId, ref: 'User'},
+    restaurant: { type: Schema.Types.ObjectId, ref: 'Restaurant', required: true},
+    coordinates: { type: [Number], required: true },
 })
 
 // Create the Restaurant, FoodItem, Order, and Route models // What for?

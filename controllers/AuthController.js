@@ -28,6 +28,7 @@ exports.register = [
 		.isAlphanumeric().withMessage("Last name has non-alphanumeric characters."),
 	body("email").isLength({ min: 1 }).trim().withMessage("Email must be specified.")
 		.isEmail().withMessage("Email must be a valid email address.").custom((value) => {
+			console.log('errorerror')
 			return User.findOne({email : value}).then((user) => {
 				if (user) {
 					return Promise.reject("E-mail already in use");
@@ -35,7 +36,7 @@ exports.register = [
 			});
 		}),
 	body("password").isLength({ min: 6 }).trim().withMessage("Password must be 6 characters or greater."),
-	check("type").isIn(['DRIVER', 'RESTAURANT']),
+	check("type").isIn(['DRIVER', 'EMPLOYEE']),
 
 	// Sanitize fields.
 	sanitizeBody("firstName").escape(),
@@ -44,7 +45,6 @@ exports.register = [
 	sanitizeBody("password").escape(),
 	// Process request after validation and sanitization.
 	(req, res) => {
-		console.log('heyho')
 		try {
 			// Extract the validation errors from a request.
 			const errors = validationResult(req);
@@ -135,6 +135,7 @@ exports.login = [
 											firstName: user.firstName,
 											lastName: user.lastName,
 											email: user.email,
+											type: user.type
 										};
 										//Prepare JWT token for authentication
 										const jwtPayload = userData;

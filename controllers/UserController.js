@@ -6,14 +6,14 @@ const auth = require("../middlewares/jwt");
 var mongoose = require("mongoose");
 mongoose.set("useFindAndModify", false);
 
-// User Schema
+// User Schema that is forwarded to front-end
 function UserData(data) {
 	this.id = data._id;
 	this.lastName = data.lastName;
 	this.firstName = data.firstName;
 	this.email = data.email;
-	this.password = data.password;
-	this.otp = data.otp;
+	this.isConfirmed = data.isConfirmed;
+	this.status = data.status;
 }
 
 /**
@@ -24,11 +24,11 @@ function UserData(data) {
 exports.UserList = [
 	//auth,
 	function (req, res) {
-		console.log("helloooo ??");
 		try {
-			User.find({}).then((user)=>{
-				if(user.length > 0){
-					return apiResponse.successResponseWithData(res, "Operation success", user);
+			User.find({}).then((users)=>{
+				if(users.length > 0){
+					//console.log(users)
+					return apiResponse.successResponseWithData(res, "Operation success", users);//.map(x => UserData(x)));
 				}else{
 					return apiResponse.successResponseWithData(res, "Operation success", []);
 				}
