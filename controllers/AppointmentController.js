@@ -11,6 +11,8 @@ function AppointmentData(data) {
 	this.id = data._id;
 	this.food = data.food;
 	this.pickupDateAndTime = data.pickupDateAndTime;
+	this.restaurant = data.restaurant;
+	this.driver = data.driver;
 }
 
 /**
@@ -38,7 +40,7 @@ exports.AppointmentList = [
 ];
 
 /**
- * User Detail.
+ * Appointment Detail.
  * 
  * @param {string}      id
  * 

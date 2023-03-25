@@ -25,7 +25,7 @@ const UserSchema = new Schema({
     lastName: { type: String, required: true },
     email: { type: String, required: true },
     password: { type: String, required: true },
-    confirmOTP: { type: String, required: true },
+    confirmOTP: { type: String, required: false },
     isConfirmed: { type: Boolean, required: true, default: false },
     status: { type: Boolean, required: true, default: true },
     type: { type: String, enum: ['DRIVER','EMPLOYEE'], required: true, default: 'DRIVER'},

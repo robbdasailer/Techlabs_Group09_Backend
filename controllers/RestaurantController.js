@@ -10,10 +10,11 @@ mongoose.set("useFindAndModify", false);
 function RestaurantData(data) {
 	this.id = data._id;
 	this.name = data.name;
-	this.location = data.location;
+	this.coordinates = data.coordinates;
 	this.address = data.address;
 	this.contactInformation = data.contactInformation;
 	this.picture = data.picture;
+	this.employees = data.employees;
 }
 
 /**
@@ -76,7 +77,7 @@ exports.RestaurantDetail = [
  * @param {string}		firstName
  * @param {string}      email
  * @param {string}      password
- * 
+ * @param {string}		
  * @returns {Object}
  */
 body()
