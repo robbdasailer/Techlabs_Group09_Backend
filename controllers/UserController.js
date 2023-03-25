@@ -76,10 +76,8 @@ exports.UserDetail = [
  * @param {string}      lastName 
  * @param {string}		firstName
  * @param {string}      email
- * @param {string}      password
- * @param {string}      confirmOTP
  * @param {string}      type
- * @returns {Object}
+ * @param {string}      password
  */
 body()
 exports.UserStore = [
@@ -88,7 +86,7 @@ exports.UserStore = [
     body("email", "E-mail must not be empty.").isLength({ min: 1 }).trim(),
     body("type", "Type must not be empty.").isLength({ min: 1 }).trim(),
     body("password", "Password must fulfill conditions.").isLength({ min: 5, max: 20 }).trim(),
-    body("confirmOTP"), // assuming that this parameter is optional
+    //body("confirmOTP"), // assuming that this parameter is optional
     // body("email").custom((value, { req }) => {
     //     return User.findOne({ email: value, user: req.user.email }).then((user) => {
     //         if (user) {
