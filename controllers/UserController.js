@@ -51,11 +51,11 @@ exports.UserList = [
 exports.UserDetail = [
 	//auth,
 	function (req, res) {
-		if(!mongoose.Types.ObjectId.isValid(req.params.id)){
+		if(!mongoose.Types.ObjectId.isValid(req.params._id)){
 			return apiResponse.successResponseWithData(res, "Operation success", {});
 		}
 		try {
-			User.findOne({_id: req.params.id}).then(function(user){                
+			User.findOne({_id: req.params._id}).then(function(user){                
 				if(user !== null){
 					let userData = new UserData(user);
 					return apiResponse.successResponseWithData(res, "Operation success", userData);
@@ -77,26 +77,42 @@ exports.UserDetail = [
  * @param {string}		firstName
  * @param {string}      email
  * @param {string}      password
- * 
+ * @param {string}      confirmOTP
+ * @param {string}      type
  * @returns {Object}
  */
 body()
 exports.UserStore = [
-	//auth,
-	body("lastName", "Name must not be empty.").isLength({ min: 1 }).trim(),
-	body("firstName", "Name must not be empty.").isLength({ min: 1 }).trim(),
-	body("email", "e-mail must not be empty.").isLength({ min: 1 }).trim(),
-	body("password", "password must fulfill conditions").isLength({ min: 5, max: 20 }).trim(),
-	//body("otp", "otp must not be empty.").isLength({ min: 1 }).trim(),
+    body("lastName", "Last name must not be empty.").isLength({ min: 1 }).trim(),
+    body("firstName", "First name must not be empty.").isLength({ min: 1 }).trim(),
+    body("email", "E-mail must not be empty.").isLength({ min: 1 }).trim(),
+    body("type", "Type must not be empty.").isLength({ min: 1 }).trim(),
+    body("password", "Password must fulfill conditions.").isLength({ min: 5, max: 20 }).trim(),
+    body("confirmOTP"), // assuming that this parameter is optional
+    // body("email").custom((value, { req }) => {
+    //     return User.findOne({ email: value, user: req.user.email }).then((user) => {
+    //         if (user) {
+    //             return Promise.reject("User already exists with this e-mail.");
+    //         }
+    //     });
+    // }),
 
-	
-		//.custom((value,{req}) => {
-		// return User.findOne({isbn : value,user: req.user._id}).then(book => {
-		// 	if (book) {
-		// 		return Promise.reject("Book already exist with this ISBN no.");
-		// 	}
-		// });
-		//}),
+// exports.UserStore = [
+// 	//auth,
+// 	body("lastName", "Name must not be empty.").isLength({ min: 1 }).trim(),
+// 	body("firstName", "Name must not be empty.").isLength({ min: 1 }).trim(),
+// 	body("email", "e-mail must not be empty.").isLength({ min: 1 }).trim(),
+// 	body("type"),
+// 	body("password", "password must fulfill conditions").isLength({ min: 5, max: 20 }).trim(),
+// 	body("confirmOTP"),//, "otp must not be empty.").isLength({ min: 1 }).trim(),
+
+// 		.custom((value,{req}) => {
+// 		return User.findOne({id : value,user: req.user._id}).then(user => {
+// 			if (user) {
+// 				return Promise.reject("User already exists with this e-mail.");
+// 			}
+// 		});
+// 		}),
 	sanitizeBody("*").escape(), //sanitize for security reasons
 	(req, res, next) => {
 		try {
@@ -106,7 +122,7 @@ exports.UserStore = [
 					firstName: req.body.firstName,
 					email: req.body.email,
 					password: req.body.password,
-					confirmOTP: req.body.confirmOTP, 
+					type: req.body.type,
 				});
 
 			if (!errors.isEmpty()) {
@@ -135,22 +151,23 @@ exports.UserStore = [
 /**
  * User update.
  * 
- * @param {string}      Name 
+ * @param {string}      firstName 
+ * @param {string}      lastName 
  * @param {string}      email
  * @param {string}      password
  * 
  * @returns {Object}
  */
-
 exports.UserUpdate = [
-	auth,
+	//auth,
 	// input is validated using body method before performing the update //
-	body("Name", "Name must not be empty.").isLength({ min: 1 }).trim(),
+	body("lastName", "last name must not be empty.").isLength({ min: 1 }).trim(),
+	body("firstName", "first name must not be empty.").isLength({ min: 1 }).trim(),
 	body("email", "email must not be empty.").isLength({ min: 1 }).trim(),
 	body("password", "password must not be empty").isLength({ min: 1 }).trim(),
 	// .custom((value,{req}) => {
-	// 	return User.findOne({Name : value,user: req.user._id, _id: { "$ne": req.params.id }}).then(book => {
-	// 		if (book) {
+	// 	return User.findOne({Name : value,user: req.user._id, _id: { "$ne": req.params._id }}).then(user => {
+	// 		if (user) {
 	// 			return Promise.reject("User already exists with this name.");
 	// 		}
 	// 	});
@@ -160,21 +177,21 @@ exports.UserUpdate = [
 		try {
 			const errors = validationResult(req);
 			var user = new User(
-				{ 	lastName: req.bodylastName,
+				{ 	lastName: req.body.lastName,
 					firstName: req.body.firstName,
 					email: req.body.email,
 					password: req.body.password,
-					_id:req.params.id
+					id: req.params._id
 				});
 
 			if (!errors.isEmpty()) {
 				return apiResponse.validationErrorWithData(res, "Validation Error.", errors.array());
 			}
 			else {
-				if(!mongoose.Types.ObjectId.isValid(req.params.id)){
+				if(!mongoose.Types.ObjectId.isValid(req.params._id)){
 					return apiResponse.validationErrorWithData(res, "Invalid Error.", "Invalid ID");
 				}else{
-					User.findById(req.params.id, function (err, foundUser) {
+					User.findById(req.params._id, function (err, foundUser) {
 						if(foundUser === null){
 							return apiResponse.notFoundResponse(res,"User not exists with this id");
 						}else{
@@ -183,11 +200,11 @@ exports.UserUpdate = [
 								return apiResponse.unauthorizedResponse(res, "You are not authorized to do this operation.");
 							}else{
 								// update user and return success or error message accordingly //
-								User.findByIdAndUpdate(req.params.id, book, {},function (err) {
+								User.findByIdAndUpdate(req.params._id, user, {},function (err) {
 									if (err) { 
 										return apiResponse.ErrorResponse(res, err); 
 									}else{
-										let userData = new UserData(book);
+										let userData = new UserData(user);
 										return apiResponse.successResponseWithData(res,"User update Success.", userData);
 									}
 								});
@@ -213,11 +230,11 @@ exports.UserUpdate = [
 exports.UserDelete = [
 	//auth,
 	function (req, res) {
-		if(!mongoose.Types.ObjectId.isValid(req.params.id)){
+		if(!mongoose.Types.ObjectId.isValid(req.params._id)){
 			return apiResponse.validationErrorWithData(res, "Invalid Error.", "Invalid ID");
 		}
 		try {
-			User.findById(req.params.id, function (err, foundUser) {
+			User.findById(req.params._d, function (err, foundUser) {
 				if(foundUser === null){
 					return apiResponse.notFoundResponse(res,"User not exists with this id");
 				}else{
@@ -226,7 +243,7 @@ exports.UserDelete = [
 						return apiResponse.unauthorizedResponse(res, "You are not authorized to do this operation.");
 					}else{
 						//delete User.
-						User.findByIdAndRemove(req.params.id,function (err) {
+						User.findByIdAndRemove(req.params._id,function (err) {
 							if (err) { 
 								return apiResponse.ErrorResponse(res, err); 
 							}else{
