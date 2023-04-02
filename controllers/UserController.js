@@ -8,7 +8,7 @@ mongoose.set("useFindAndModify", false);
 
 // User Schema that is forwarded to front-end
 function UserData(data) {
-	this._id = data._id;
+	this.id = data._id;
 	this.lastName = data.lastName;
 	this.firstName = data.firstName;
 	this.email = data.email;
@@ -51,11 +51,11 @@ exports.UserList = [
 exports.UserDetail = [
 	//auth,
 	function (req, res) {
-		if(!mongoose.Types.ObjectId.isValid(req.params._id)){
+		if(!mongoose.Types.ObjectId.isValid(req.params.id)){
 			return apiResponse.successResponseWithData(res, "Operation success", {});
 		}
 		try {
-			User.findOne({_id: req.params._id}).then(function(user){                
+			User.findOne({_id: req.params.id}).then(function(user){                
 				if(user !== null){
 					let userData = new UserData(user);
 					return apiResponse.successResponseWithData(res, "Operation success", userData);
@@ -105,7 +105,7 @@ exports.UserStore = [
 // 	body("confirmOTP"),//, "otp must not be empty.").isLength({ min: 1 }).trim(),
 
 // 		.custom((value,{req}) => {
-// 		return User.findOne({id : value,user: req.user._id}).then(user => {
+// 		return User.findOne({id : value,user: req.user.id}).then(user => {
 // 			if (user) {
 // 				return Promise.reject("User already exists with this e-mail.");
 // 			}
@@ -164,7 +164,7 @@ exports.UserUpdate = [
 	body("email", "email must not be empty.").isLength({ min: 1 }).trim(),
 	body("password", "password must not be empty").isLength({ min: 1 }).trim(),
 	// .custom((value,{req}) => {
-	// 	return User.findOne({Name : value,user: req.user._id, _id: { "$ne": req.params._id }}).then(user => {
+	// 	return User.findOne({Name : value,user: req.user.id, _id: { "$ne": req.params._id }}).then(user => {
 	// 		if (user) {
 	// 			return Promise.reject("User already exists with this name.");
 	// 		}
@@ -179,26 +179,27 @@ exports.UserUpdate = [
 					firstName: req.body.firstName,
 					email: req.body.email,
 					password: req.body.password,
-					id: req.params._id
+					_id: req.params.id
 				});
 
 			if (!errors.isEmpty()) {
 				return apiResponse.validationErrorWithData(res, "Validation Error.", errors.array());
 			}
 			else {
-				if(!mongoose.Types.ObjectId.isValid(req.params._id)){
+				console.log(req.params.id)
+				if(!mongoose.Types.ObjectId.isValid(req.params.id)){
 					return apiResponse.validationErrorWithData(res, "Invalid Error.", "Invalid ID");
 				}else{
-					User.findById(req.params._id, function (err, foundUser) {
+					User.findById(req.params.id, function (err, foundUser) {
 						if(foundUser === null){
 							return apiResponse.notFoundResponse(res,"User not exists with this id");
 						}else{
 							// find user by given id and check if the user making the request is the one who created the user //
-							if(foundUser.user.toString() !== req.user._id){
+							if(foundUser.user.toString() !== req.user.id){
 								return apiResponse.unauthorizedResponse(res, "You are not authorized to do this operation.");
 							}else{
 								// update user and return success or error message accordingly //
-								User.findByIdAndUpdate(req.params._id, user, {},function (err) {
+								User.findByIdAndUpdate(req.params.id, user, {},function (err) {
 									if (err) { 
 										return apiResponse.ErrorResponse(res, err); 
 									}else{
@@ -232,16 +233,16 @@ exports.UserDelete = [
 			return apiResponse.validationErrorWithData(res, "Invalid Error.", "Invalid ID");
 		}
 		try {
-			User.findById(req.params._id, function (err, foundUser) {
+			User.findById(req.params.id, function (err, foundUser) {
 				if(foundUser === null){
 					return apiResponse.notFoundResponse(res,"User not exists with this id");
 				}else{
 					//Check authorized user
-					if(foundUser.user.toString() !== req.user._id){
+					if(foundUser.user() !== req.user.id){
 						return apiResponse.unauthorizedResponse(res, "You are not authorized to do this operation.");
 					}else{
 						//delete User.
-						User.findByIdAndRemove(req.params._id,function (err) {
+						User.findByIdAndRemove(req.params.id,function (err) {
 							if (err) { 
 								return apiResponse.ErrorResponse(res, err); 
 							}else{

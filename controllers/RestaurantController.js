@@ -133,14 +133,14 @@ exports.RestaurantStore = [
  * Restaurant update.
  * 
  * @param {string}      Name 
- * @param {string}      email
- * @param {string}      password
+ * @param {string}      coordinates
+ * @param {string}      address
  * 
  * @returns {Object}
  */
 
 exports.RestaurantUpdate = [
-	auth,
+	// auth,
 	// input is validated using body method before performing the update //
 	body("name", "Name must not be empty.").isLength({ min: 1 }).trim(),
 	body("coordinates", "coordinates must not be empty.").isLength({ min: 1 }).trim(),
@@ -162,7 +162,8 @@ exports.RestaurantUpdate = [
 					coordinates: req.body.coordinates,
 					address: req.body.address,
 					contactInformation: req.body.contactInformation,
-					picture: req.body.picture, 
+					picture: req.body.picture,
+					_id: req.params.id
 				});
 
 			if (!errors.isEmpty()) {
@@ -181,11 +182,11 @@ exports.RestaurantUpdate = [
 								return apiResponse.unauthorizedResponse(res, "You are not authorized to do this operation.");
 							}else{
 								// update restaurant and return success or error message accordingly //
-								Restaurant.findByIdAndUpdate(req.params.id, book, {},function (err) {
+								Restaurant.findByIdAndUpdate(req.params.id, restaurant, {},function (err) {
 									if (err) { 
 										return apiResponse.ErrorResponse(res, err); 
 									}else{
-										let RestaurantData = new RestaurantData(book);
+										let RestaurantData = new RestaurantData(restaurant);
 										return apiResponse.successResponseWithData(res,"Restaurant update Success.", RestaurantData);
 									}
 								});

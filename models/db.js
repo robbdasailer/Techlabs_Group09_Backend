@@ -28,7 +28,7 @@ const UserSchema = new Schema({
     confirmOTP: { type: String, required: false },
     isConfirmed: { type: Boolean, required: true, default: false },
     status: { type: Boolean, required: true, default: true },
-    type: { type: String, enum: ['DRIVER','EMPLOYEE'], required: true, default: 'DRIVER'},
+    type: { type: String, enum: ['DRIVER','EMPLOYEE','ADMIN'], required: true, default: 'DRIVER'},
 });
 
 // Create the Route schema

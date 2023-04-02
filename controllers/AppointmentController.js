@@ -8,7 +8,7 @@ mongoose.set("useFindAndModify", false);
 
 // Appointment Schema
 function AppointmentData(data) {
-	this.id = data._id;
+	this.id = data.id;
 	this.food = data.food;
 	this.pickupDateAndTime = data.pickupDateAndTime;
 	this.restaurant = data.restaurant;
@@ -53,9 +53,9 @@ exports.AppointmentDetail = [
 			return apiResponse.successResponseWithData(res, "Operation success", {});
 		}
 		try {
-			Appointment.findOne({_id: req.params.id}).then(function(user){                
-				if(user !== null){
-					let appointmentData = new AppointmentData(user);
+			Appointment.findOne({_id: req.params.id}).then(function(appointment){                
+				if(appointment !== null){
+					let appointmentData = new AppointmentData(appointment);
 					return apiResponse.successResponseWithData(res, "Operation success", appointmentData);
 				}else{
 					return apiResponse.successResponseWithData(res, "Operation success", {});
@@ -69,7 +69,7 @@ exports.AppointmentDetail = [
 ];
 
 /**
- * User store.
+ * Appointment store.
  * 
  * @param {string}      food
  * @param {string}		pickupDateAndTime
@@ -81,11 +81,14 @@ exports.AppointmentStore = [
 	//auth,
 	body("food", "food must not be empty.").isLength({ min: 1 }).trim(),
 	body("pickupDateAndTime", "Pickup Date and Time must not be empty.").isLength({ min: 1 }).trim(),
+	body("driver"),
+	body("restaurant"),
+	body("coordinates"),
 	//body("otp", "otp must not be empty.").isLength({ min: 1 }).trim(),
 
 	
 		//.custom((value,{req}) => {
-		// return User.findOne({isbn : value,user: req.user._id}).then(book => {
+		// return User.findOne({isbn : value,user: req.user.id}).then(book => {
 		// 	if (book) {
 		// 		return Promise.reject("Book already exist with this ISBN no.");
 		// 	}
@@ -98,6 +101,9 @@ exports.AppointmentStore = [
 			var appointment = new Appointment(
 				{ 	food: req.body.food,
 					pickupDateAndTime: req.body.pickupDateAndTime,
+					driver: req.body.driver,
+					restaurant: req.body.restaurant,
+					coordinates: req.body.coordinates
 				});
 
 			if (!errors.isEmpty()) {
@@ -108,7 +114,7 @@ exports.AppointmentStore = [
 				appointment.save(function (err) {
 					if (err) { return apiResponse.ErrorResponse(res, err); }
 					let appointmentData = new AppointmentData(appointment);
-					return apiResponse.successResponseWithData(res,"User add Success.", appointmentData);
+					return apiResponse.successResponseWithData(res,"Appointment add Success.", appointmentData);
 				});	
 			}
 			next()
@@ -121,7 +127,7 @@ exports.AppointmentStore = [
 ];
 
 /**
- * User update.
+ * Appointment update.
  * 
  * @param {string}      food 
  * @param {string}      pickupDateAndTime
@@ -135,7 +141,7 @@ exports.AppointmentUpdate = [
 	body("food", "food must not be empty.").isLength({ min: 1 }).trim(),
 	body("pickupDateAndTime", "pickupDateAndTime must not be empty.").isLength({ min: 1 }).trim(),
 	// .custom((value,{req}) => {
-	// 	return User.findOne({Name : value,user: req.user._id, _id: { "$ne": req.params.id }}).then(book => {
+	// 	return User.findOne({Name : value,user: req.user.id, id: { "$ne": req.params.id }}).then(book => {
 	// 		if (book) {
 	// 			return Promise.reject("User already exists with this name.");
 	// 		}
@@ -162,7 +168,7 @@ exports.AppointmentUpdate = [
 							return apiResponse.notFoundResponse(res,"Appointment not exists with this id");
 						}else{
 							// find appointment by given id and check if the appointment making the request is the one who created the user //
-							if(foundAppointment.appointment.toString() !== req.appointment._id){
+							if(foundAppointment.appointment.toString() !== req.appointment.id){
 								return apiResponse.unauthorizedResponse(res, "You are not authorized to do this operation.");
 							}else{
 								// update appointment and return success or error message accordingly //
@@ -205,7 +211,7 @@ exports.AppointmentDelete = [
 					return apiResponse.notFoundResponse(res,"Appointment not exists with this id");
 				}else{
 					//Check authorized appointment
-					if(foundAppointment.appointment.toString() !== req.appointment._id){
+					if(foundAppointment.appointment.toString() !== req.appointment.id){
 						return apiResponse.unauthorizedResponse(res, "You are not authorized to do this operation.");
 					}else{
 						//delete Appointment.
