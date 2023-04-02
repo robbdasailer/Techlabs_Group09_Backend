@@ -186,8 +186,6 @@ exports.UserUpdate = [
 							return apiResponse.notFoundResponse(res,"User not exists with this id");
 						}else{
 							// find user by given id and check if the user making the request is the one who created the user //
-							console.log(foundUser._id)
-							console.log(req.user._id)
 							if(foundUser._id != req.user._id){
 								return apiResponse.unauthorizedResponse(res, "You are not authorized to do this operation.");
 							}else{
