@@ -188,10 +188,12 @@ router.get("/:id", AppointmentController.AppointmentDetail);
 
 /**
  * @openapi
+ * /appointment/:
  *   post:
  *     summary: Create a new appointment
  *     tags: [Appointments]
  *     requestBody:
+ *       description: add a new appointment
  *       required: true
  *       content:
  *         application/json:
@@ -206,6 +208,7 @@ router.get("/:id", AppointmentController.AppointmentDetail);
  *               $ref: '#/components/schemas/Appointment'
  */
 router.post("/", AppointmentController.AppointmentStore);
+
 /**
  * @openapi
  * /appointment/:
