@@ -47,7 +47,7 @@ const FoodItemSchema = new Schema({
 
 // Create the Appointment schema
 const AppointmentSchema = new Schema({
-    food: [FoodItemSchema],
+    food: { type: [FoodItemSchema], required: true },
     pickupDateAndTime: {type: Date, required: true},
     driver: { type: Schema.Types.ObjectId, ref: 'User'},
     restaurant: { type: Schema.Types.ObjectId, ref: 'Restaurant', required: true},

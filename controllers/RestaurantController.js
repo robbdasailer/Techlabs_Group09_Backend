@@ -8,13 +8,13 @@ mongoose.set("useFindAndModify", false);
 
 // Restaurant Schema
 function RestaurantData(data) {
-	this.id = data._id;
-	this.name = data.name;
-	this.coordinates = data.coordinates;
-	this.address = data.address;
-	this.contactInformation = data.contactInformation;
-	this.picture = data.picture;
-	this.employees = data.employees;
+    this.id = data._id;
+    this.name = data.name;
+    this.coordinates = data.coordinates;
+    this.address = data.address;
+    this.contactInformation = data.contactInformation;
+    this.employees = data.employees;
+    this.picture = data.picture; // move this property to the end
 }
 
 /**
@@ -23,7 +23,7 @@ function RestaurantData(data) {
  * @returns {Object}
  */
 exports.RestaurantList = [
-	auth,
+	//auth,
 	function (req, res) {
 		try {
 			Restaurant.find({}).then((restaurant)=>{
@@ -49,18 +49,20 @@ exports.RestaurantList = [
  * @returns {Object}
  */
 exports.RestaurantDetail = [
-	auth,
+	//auth,
 	function (req, res) {
+		console.log(req.params.id);
 		if(!mongoose.Types.ObjectId.isValid(req.params.id)){
-			return apiResponse.successResponseWithData(res, "Operation success", {});
+			return apiResponse.successResponseWithData(res, "Operation success 1", {});
 		}
 		try {
-			Restaurant.findOne({_id: req.params.id}).then(function(restaurant){                
+			Restaurant.findOne({_id: req.params.id}).then(function(restaurant){   
+				console.log(restaurant)             
 				if(restaurant !== null){
 					let restaurantData = new RestaurantData(restaurant);
-					return apiResponse.successResponseWithData(res, "Operation success", restaurantData);
+					return apiResponse.successResponseWithData(res, "Operation success 2", restaurantData);
 				}else{
-					return apiResponse.successResponseWithData(res, "Operation success", {});
+					return apiResponse.successResponseWithData(res, "Operation success 3", {});
 				}
 			});
 		} catch (err) {
@@ -82,14 +84,14 @@ exports.RestaurantDetail = [
  */
 body()
 exports.RestaurantStore = [
-	auth,
+	// auth,
 	body("name", "Name must not be empty.").isLength({ min: 1 }).trim(),
 	body("coordinates", "coordinates must not be empty."),
 	body("address", "address must not be empty."),
 	body("contactInformation", "contactInformation must fulfill conditions"),
 	
 		//.custom((value,{req}) => {
-		// return User.findOne({isbn : value,user: req.user._id}).then(book => {
+		// return User.findOne({isbn : value,user: req.user.id}).then(book => {
 		// 	if (book) {
 		// 		return Promise.reject("Book already exist with this ISBN no.");
 		// 	}
@@ -145,7 +147,7 @@ exports.RestaurantUpdate = [
 	body("address", "address must not be empty.").isLength({ min: 1 }).trim(),
 	body("contactInformation", "contactInformation must fulfill conditions").isLength({ min: 5, max: 20 }).trim(),
 	// .custom((value,{req}) => {
-	// 	return User.findOne({Name : value,user: req.user._id, _id: { "$ne": req.params.id }}).then(book => {
+	// 	return User.findOne({Name : value,user: req.user.id, id: { "$ne": req.params.id }}).then(book => {
 	// 		if (book) {
 	// 			return Promise.reject("User already exists with this name.");
 	// 		}
@@ -175,7 +177,7 @@ exports.RestaurantUpdate = [
 							return apiResponse.notFoundResponse(res,"Restaurant not exists with this id");
 						}else{
 							// find restaurant by given id and check if the restaurant making the request is the one who created the restaurant //
-							if(foundRestaurant.restaurant.toString() !== req.restaurant._id){
+							if(foundRestaurant.restaurant.toString() !== req.restaurant.id){
 								return apiResponse.unauthorizedResponse(res, "You are not authorized to do this operation.");
 							}else{
 								// update restaurant and return success or error message accordingly //
@@ -218,7 +220,7 @@ exports.RestaurantDelete = [
 					return apiResponse.notFoundResponse(res,"Restaurant not exists with this id");
 				}else{
 					//Check authorized restaurant
-					if(foundRestaurant.restaurant.toString() !== req.restaurant._id){
+					if(foundRestaurant.restaurant.toString() !== req.restaurant.id){
 						return apiResponse.unauthorizedResponse(res, "You are not authorized to do this operation.");
 					}else{
 						//delete Restaurant.

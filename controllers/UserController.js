@@ -8,7 +8,7 @@ mongoose.set("useFindAndModify", false);
 
 // User Schema that is forwarded to front-end
 function UserData(data) {
-	this.id = data._id;
+	this._id = data._id;
 	this.lastName = data.lastName;
 	this.firstName = data.firstName;
 	this.email = data.email;
@@ -232,7 +232,7 @@ exports.UserDelete = [
 			return apiResponse.validationErrorWithData(res, "Invalid Error.", "Invalid ID");
 		}
 		try {
-			User.findById(req.params._d, function (err, foundUser) {
+			User.findById(req.params._id, function (err, foundUser) {
 				if(foundUser === null){
 					return apiResponse.notFoundResponse(res,"User not exists with this id");
 				}else{
