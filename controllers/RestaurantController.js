@@ -210,7 +210,7 @@ exports.RestaurantUpdate = [
  * @returns {Object}
  */
 exports.RestaurantDelete = [
-	auth,
+	// auth,
 	function (req, res) {
 		if(!mongoose.Types.ObjectId.isValid(req.params.id)){
 			return apiResponse.validationErrorWithData(res, "Invalid Error.", "Invalid ID");

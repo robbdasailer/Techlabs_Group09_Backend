@@ -73,17 +73,20 @@ exports.AppointmentDetail = [
  * 
  * @param {string}      food
  * @param {string}		pickupDateAndTime
+ * @param {string}		driver
+ * @param {string}		restaurant
+ * @param {string}		coordinates
  * 
  * @returns {Object}
  */
-body()
+
 exports.AppointmentStore = [
 	//auth,
-	body("food", "food must not be empty.").isLength({ min: 1 }).trim(),
-	body("pickupDateAndTime", "Pickup Date and Time must not be empty.").isLength({ min: 1 }).trim(),
-	body("driver"),
-	body("restaurant"),
-	body("coordinates"),
+	body("food", "food must not be empty."),
+	body("pickupDateAndTime", "Pickup Date and Time must not be empty."),
+	body("driver", "driver must be a valid ObjectId").isMongoId(),
+	body("restaurant", "restaurant must not be empty"),
+	body("coordinates", "coordinates must not be empty"),
 	//body("otp", "otp must not be empty.").isLength({ min: 1 }).trim(),
 
 	
@@ -95,7 +98,7 @@ exports.AppointmentStore = [
 		// });
 		//}),
 	sanitizeBody("*").escape(), //sanitize for security reasons
-	(req, res, next) => {
+	(req, res) => {
 		try {
 			const errors = validationResult(req);
 			var appointment = new Appointment(
@@ -112,17 +115,16 @@ exports.AppointmentStore = [
 			else {
 				//Save appointment
 				appointment.save(function (err) {
-					if (err) { return apiResponse.ErrorResponse(res, err); }
-					let appointmentData = new AppointmentData(appointment);
-					return apiResponse.successResponseWithData(res,"Appointment add Success.", appointmentData);
+				  if (err) { return apiResponse.ErrorResponse(res, err); }
+				  let appointmentData = new AppointmentData(appointment);
+				  return apiResponse.successResponseWithData(res,"Appointment add Success.", appointmentData);
 				});	
-			}
-			next()
+			  }
 		} catch (err) {
 			//throw error in json response with status 500. 
 			return apiResponse.ErrorResponse(res, err);
 		}
-	},
+	}
 
 ];
 
@@ -136,10 +138,10 @@ exports.AppointmentStore = [
  */
 
 exports.AppointmentUpdate = [
-	auth,
+	// auth,
 	// input is validated using body method before performing the update //
-	body("food", "food must not be empty.").isLength({ min: 1 }).trim(),
-	body("pickupDateAndTime", "pickupDateAndTime must not be empty.").isLength({ min: 1 }).trim(),
+	body("food", "food must not be empty."),
+	body("pickupDateAndTime", "pickupDateAndTime must not be empty."),
 	// .custom((value,{req}) => {
 	// 	return User.findOne({Name : value,user: req.user.id, id: { "$ne": req.params.id }}).then(book => {
 	// 		if (book) {
@@ -152,8 +154,12 @@ exports.AppointmentUpdate = [
 		try {
 			const errors = validationResult(req);
 			var appointment = new Appointment(
-				{ 	food: req.body.food,
+				{ 	
+					// food: req.body.food,
 					pickupDateAndTime: req.body.pickupDateAndTime,
+					driver: req.body.driver,
+					restaurant: req.body.restaurant,
+					coordinates: req.body.coordinates
 				});
 
 			if (!errors.isEmpty()) {

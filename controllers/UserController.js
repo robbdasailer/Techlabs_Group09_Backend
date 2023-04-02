@@ -229,7 +229,7 @@ exports.UserUpdate = [
 exports.UserDelete = [
 	//auth,
 	function (req, res) {
-		if(!mongoose.Types.ObjectId.isValid(req.params._id)){
+		if(!mongoose.Types.ObjectId.isValid(req.params.id)){
 			return apiResponse.validationErrorWithData(res, "Invalid Error.", "Invalid ID");
 		}
 		try {
