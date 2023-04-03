@@ -144,7 +144,7 @@ var router = express.Router();
 
 /**
  * @openapi
- * /appointment/:
+ * /api/appointment/:
  *   get:
  *     summary: Retrieve a list of appointments
  *     tags: [Appointments]
@@ -163,7 +163,7 @@ router.get("/", AppointmentController.AppointmentList);
 
 /**
  * @openapi
- * /appointment/{id}:
+ * /api/appointment/{id}:
  *   get:
  *     summary: Get an appointment by ID
  *     tags: [Appointments]
@@ -188,7 +188,7 @@ router.get("/:id", AppointmentController.AppointmentDetail);
 
 /**
  * @openapi
- * /appointment/:
+ * /api/appointment/:
  *   post:
  *     summary: Create a new appointment
  *     tags: [Appointments]
@@ -211,7 +211,7 @@ router.post("/", AppointmentController.AppointmentStore);
 
 /**
  * @openapi
- * /appointment/:
+ * /api/appointment/:
  *   put:
  *     summary: Update an appointment
  *     tags: [Appointments]
@@ -242,7 +242,7 @@ router.put("/:id", AppointmentController.AppointmentUpdate);
 
 /**
  * @openapi
- * /appointment/:
+ * /api/appointment/:
  *   delete:
  *     summary: Delete an appointment
  *     tags: [Appointments]

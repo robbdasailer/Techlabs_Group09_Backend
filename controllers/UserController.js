@@ -49,7 +49,7 @@ exports.UserList = [
  * @returns {Object}
  */
 exports.UserDetail = [
-	auth,
+	// auth,
 	function (req, res) {
 		if(!mongoose.Types.ObjectId.isValid(req.params.id)){
 			return apiResponse.successResponseWithData(res, "Operation success", {});
@@ -157,7 +157,7 @@ exports.UserStore = [
  * @returns {Object}
  */
 exports.UserUpdate = [
-	auth,
+	// auth,
 	// input is validated using body method before performing the update //
 	body("lastName", "last name must not be empty.").isLength({ min: 1 }).trim(),
 	body("firstName", "first name must not be empty.").isLength({ min: 1 }).trim(),
@@ -224,7 +224,7 @@ exports.UserUpdate = [
  * @returns {Object}
  */
 exports.UserDelete = [
-	auth,
+	// auth,
 	function (req, res) {
 		if(!mongoose.Types.ObjectId.isValid(req.params.id)){
 			return apiResponse.validationErrorWithData(res, "Invalid Error.", "Invalid ID");
