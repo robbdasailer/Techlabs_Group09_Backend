@@ -97,10 +97,11 @@ exports.AppointmentStore = [
 		// 	}
 		// });
 		//}),
-	sanitizeBody("*").escape(), //sanitize for security reasons
+	// sanitizeBody("*").escape(), //sanitize for security reasons
 	(req, res) => {
 		try {
 			const errors = validationResult(req);
+			console.log(req.body)
 			var appointment = new Appointment(
 				{ 	food: req.body.food,
 					pickupDateAndTime: req.body.pickupDateAndTime,
@@ -108,7 +109,7 @@ exports.AppointmentStore = [
 					restaurant: req.body.restaurant,
 					coordinates: req.body.coordinates
 				});
-
+			console.log(appointment)
 			if (!errors.isEmpty()) {
 				return apiResponse.validationErrorWithData(res, "Validation Error.", errors.array());
 			}
