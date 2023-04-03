@@ -75,6 +75,33 @@ router.post("/register", AuthController.register);
  *         description: Returns a mysterious string.
  */
 router.post("/login", AuthController.login);
+
+/**
+ * @openapi
+ * /api/auth/verify-otp:
+ *   post:
+ *     tags: [Authentication]
+ *     summary: This logs a user in
+ *     requestBody:
+ *       description: confirm Otp
+ *       required: true
+ *       content: 
+ *         application/json: 
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - otp
+ *             properties:
+ *               email:
+ *                 type: string
+ *               otp:
+ *                 type: string
+ *         
+ *     responses:
+ *       200:
+ *         description: Returns a mysterious string.
+ */
 router.post("/verify-otp", AuthController.verifyConfirm);
 router.post("/resend-verify-otp", AuthController.resendConfirmOtp);
 

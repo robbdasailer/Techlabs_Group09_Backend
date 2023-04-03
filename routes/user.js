@@ -5,6 +5,12 @@ var router = express.Router();
 
 /**
  * @openapi
+ * components:
+ *   securitySchemes:
+ *     bearerAuth:            # arbitrary name for the security scheme
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT 
  * definitions: 
  *   User:
  *     type: object
@@ -51,6 +57,8 @@ router.get("/", UserController.UserList); //should not provide OTP and password 
  * @openapi
  * /api/user/{id}:
  *   get:
+ *     security:
+ *       - bearerAuth: [] 
  *     tags: [Users]
  *     summary: Get a user by ID
  *     parameters:
@@ -94,15 +102,25 @@ router.post("/", UserController.UserStore);
  * @openapi
  * /api/user/{id}:
  *   put:
+ *     security:
+ *       - bearerAuth: [] 
  *     tags: [Users]
- *     summary: This updates a user 
+ *     summary: This updates a user
  *     requestBody:
  *       description: update a user
  *       required: true
  *       content: 
  *         application/json: 
  *           schema:
- *             $ref: '#/definitions/User'
+ *               type: object
+ *               required:
+ *                 - firstName
+ *                 - lastName
+ *               properties:
+ *                 firstName:
+ *                   type: string
+ *                 lastName:
+ *                   type: string
  *     parameters:
  *       - in: path
  *         name: id
@@ -121,6 +139,8 @@ router.put("/:id", UserController.UserUpdate);
  * @openapi
  * /api/user/{id}:
  *   delete:
+ *     security:
+ *       - bearerAuth: [] 
  *     tags: [Users]
  *     summary: This deletes a user 
  *     parameters:
