@@ -38,8 +38,9 @@ app.use(express.static(path.join(__dirname, "public")));
 
 //To allow cross-origin requests
 app.use(cors({
-	origin: ['http://localhost:3000']
+	origin: ['http://localhost:3000','tafel-route.netlify.com']
   }));
+
   
 
 

@@ -12,6 +12,7 @@ function UserData(data) {
 	this.lastName = data.lastName;
 	this.firstName = data.firstName;
 	this.email = data.email;
+	this.type = data.type;
 	this.isConfirmed = data.isConfirmed;
 	this.status = data.status;
 }
