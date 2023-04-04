@@ -83,63 +83,6 @@ var router = express.Router();
  *         - pickupDateAndTime
  *         - restaurant
  *         - coordinates
- * 
- *     UpdateAppointment:
- *       type: object
- *       properties:
- *         food:
- *           type: array
- *           items:
- *             $ref: '#/components/schemas/FoodItem'
- *         pickupDateAndTime:
- *           type: string
- *           format: date-time
- *         driver:
- *           type: string
- *           format: uuid
- *         restaurant:
- *           type: string
- *           format: uuid
- *         coordinates:
- *           type: array
- *           items:
- *             type: number
- *             format: float
- *       required:
- *         - food
- *         - pickupDateAndTime
- *         - restaurant
- *         - coordinates 
- *  
- *     NewAppointment:
- *       type: object
- *       properties:
- *         food:
- *           type: array
- *           items:
- *             $ref: '#/components/schemas/FoodItem'
- *           required: true
- *         pickupDateAndTime:
- *           type: string
- *           format: date-time
- *           required: true
- *         driver:
- *           type: string
- *           format: uuid
- *         restaurant:
- *           type: string
- *           format: uuid
- *           required: true
- *         coordinates:
- *           type: array
- *           items:
- *             type: number
- *           required: true
- *       required:
- *         - food
- *         - pickupDateAndTime
- *         - restaurant
- *         - coordinates
  */
 
 /**
@@ -198,7 +141,7 @@ router.get("/:id", AppointmentController.AppointmentDetail);
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/NewAppointment'
+ *             $ref: '#/components/schemas/Appointment'
  *     responses:
  *       201:
  *         description: The created appointment
@@ -227,7 +170,7 @@ router.post("/", AppointmentController.AppointmentStore);
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/UpdateAppointment'
+ *             $ref: '#/components/schemas/Appointment'
  *     responses:
  *       200:
  *         description: The updated appointment

@@ -8,7 +8,7 @@ mongoose.set("useFindAndModify", false);
 
 // Appointment Schema
 function AppointmentData(data) {
-	this.id = data.id;
+	this.id = data._id;
 	this.food = data.food;
 	this.pickupDateAndTime = data.pickupDateAndTime;
 	this.restaurant = data.restaurant;

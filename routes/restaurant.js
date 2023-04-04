@@ -91,7 +91,7 @@ router.get("/", RestaurantController.RestaurantList);
 
 /**
  * @openapi
- * /api/restaurants/{id}:
+ * /api/restaurant/{id}:
  *   get:
  *     summary: Retrieve a single restaurant by ID
  *     tags: [Restaurants]
@@ -128,7 +128,7 @@ router.get("/:id", RestaurantController.RestaurantDetail);
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/NewRestaurant'
+ *             $ref: '#/components/schemas/Restaurant'
  *     responses:
  *       201:
  *         description: The created restaurant
