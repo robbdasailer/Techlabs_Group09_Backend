@@ -107,6 +107,7 @@ exports.RestaurantStore = [
 					address: req.body.address,
 					contactInformation: req.body.contactInformation,
 					picture: req.body.picture, 
+					employees: req.body.employees
 				});
 
 			if (!errors.isEmpty()) {
@@ -143,9 +144,9 @@ exports.RestaurantUpdate = [
 	// auth,
 	// input is validated using body method before performing the update //
 	body("name", "Name must not be empty.").isLength({ min: 1 }).trim(),
-	body("coordinates", "coordinates must not be empty.").isLength({ min: 1 }).trim(),
-	body("address", "address must not be empty.").isLength({ min: 1 }).trim(),
-	body("contactInformation", "contactInformation must fulfill conditions").isLength({ min: 5, max: 20 }).trim(),
+	body("coordinates", "coordinates must not be empty."),
+	body("address", "address must not be empty."),
+	body("contactInformation", "contactInformation must fulfill conditions"),
 	// .custom((value,{req}) => {
 	// 	return User.findOne({Name : value,user: req.user.id, id: { "$ne": req.params.id }}).then(book => {
 	// 		if (book) {
@@ -153,7 +154,7 @@ exports.RestaurantUpdate = [
 	// 		}
 	// 	});
 	// }),
-	sanitizeBody("*").escape(),
+	//sanitizeBody("*").escape(),
 	(req, res) => {
 		try {
 			const errors = validationResult(req);
@@ -163,7 +164,7 @@ exports.RestaurantUpdate = [
 					address: req.body.address,
 					contactInformation: req.body.contactInformation,
 					picture: req.body.picture,
-					_id: req.params.id
+					id: req.params._id
 				});
 
 			if (!errors.isEmpty()) {
@@ -174,23 +175,32 @@ exports.RestaurantUpdate = [
 					return apiResponse.validationErrorWithData(res, "Invalid Error.", "Invalid ID");
 				}else{
 					Restaurant.findById(req.params.id, function (err, foundRestaurant) {
+						console.log(foundRestaurant)
 						if(foundRestaurant === null){
 							return apiResponse.notFoundResponse(res,"Restaurant not exists with this id");
 						}else{
 							// find restaurant by given id and check if the restaurant making the request is the one who created the restaurant //
-							if(foundRestaurant.restaurant.toString() !== req.restaurant.id){
+							console.log(foundRestaurant._id)
+							console.log(req.restaurant._id)
+							if(foundRestaurant._id.toString() !== req.restaurant._id){
 								return apiResponse.unauthorizedResponse(res, "You are not authorized to do this operation.");
-							}else{
-								// update restaurant and return success or error message accordingly //
-								Restaurant.findByIdAndUpdate(req.params.id, restaurant, {},function (err) {
+							}
+							else {
+								const restaurant = { 
+									name: req.body.lastName,
+									address: req.body.address,
+									contactInformation: req.body.contactInformation,
+									employees: req.body.employees,
+								};
+								User.findByIdAndUpdate(req.params.id, restaurant, {},function (err, updatedUser) {
 									if (err) { 
-										return apiResponse.ErrorResponse(res, err); 
+									return apiResponse.ErrorResponse(res, err); 
 									}else{
-										let RestaurantData = new RestaurantData(restaurant);
-										return apiResponse.successResponseWithData(res,"Restaurant update Success.", RestaurantData);
+										let userData = new UserData(updatedUser);
+										return apiResponse.successResponseWithData(res,"User update Success.", userData);
 									}
 								});
-							}
+							} 
 						}
 					});
 				}
@@ -201,6 +211,7 @@ exports.RestaurantUpdate = [
 		}
 	}
 ];
+
 
 /**
  * Restaurant Delete.
