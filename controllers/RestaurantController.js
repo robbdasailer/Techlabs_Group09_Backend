@@ -164,7 +164,8 @@ exports.RestaurantUpdate = [
 					address: req.body.address,
 					contactInformation: req.body.contactInformation,
 					picture: req.body.picture,
-					id: req.params._id
+					id: req.params._id,
+					employees: req.params.employees
 				});
 
 			if (!errors.isEmpty()) {
