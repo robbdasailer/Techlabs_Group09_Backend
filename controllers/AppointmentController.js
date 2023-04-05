@@ -13,6 +13,7 @@ function AppointmentData(data) {
 	this.pickupDateAndTime = data.pickupDateAndTime;
 	this.restaurant = data.restaurant;
 	this.driver = data.driver;
+	this.coordinates = data.coordinates
 }
 
 /**
@@ -150,44 +151,41 @@ exports.AppointmentUpdate = [
 	// 		}
 	// 	});
 	// }),
-	sanitizeBody("*").escape(),
+	// sanitizeBody("*").escape(),
 	(req, res) => {
 		try {
 			const errors = validationResult(req);
-			var appointment = new Appointment(
-				{ 	
-					// food: req.body.food,
-					pickupDateAndTime: req.body.pickupDateAndTime,
-					driver: req.body.driver,
-					restaurant: req.body.restaurant,
-					coordinates: req.body.coordinates
-				});
-
 			if (!errors.isEmpty()) {
 				return apiResponse.validationErrorWithData(res, "Validation Error.", errors.array());
 			}
 			else {
 				if(!mongoose.Types.ObjectId.isValid(req.params.id)){
-					return apiResponse.validationErrorWithData(res, "Invalid Error.", "Invalid ID");
+					return apiResponse.validationErrorWithData(res, "Invalid ID.", "Invalid ID");
 				}else{
 					Appointment.findById(req.params.id, function (err, foundAppointment) {
 						if(foundAppointment === null){
 							return apiResponse.notFoundResponse(res,"Appointment not exists with this id");
 						}else{
-							// find appointment by given id and check if the appointment making the request is the one who created the user //
-							if(foundAppointment.appointment.toString() !== req.appointment.id){
-								return apiResponse.unauthorizedResponse(res, "You are not authorized to do this operation.");
-							}else{
-								// update appointment and return success or error message accordingly //
-								Appointment.findByIdAndUpdate(req.params.id, appointment, {},function (err) {
-									if (err) { 
-										return apiResponse.ErrorResponse(res, err); 
-									}else{
-										let appointmentData = new AppointmentData(appointment);
-										return apiResponse.successResponseWithData(res,"Appointment update Success.", appointmentData);
-									}
+
+							// find appointment by given id and check if the appointment making the request is the one who created the user //							
+							
+							// update appointment and return success or error message accordingly //
+							const updatedFields = {
+								food: req.body.food,
+								coordinates: req.body.coordinates,
+								id: req.body._id,
+								pickupDateAndTime: req.body.pickupDateAndTime,
+								restaurant: req.body.restaurant,
+								driver: req.body.driver,
+							};
+							Appointment.findByIdAndUpdate(req.params.id, updatedFields, { new: true }, function (err, updatedAppointment) {
+								if (err) {
+									return apiResponse.ErrorResponse(res, err); 
+								} else {
+									let appointmentData = new AppointmentData(updatedAppointment);
+									return apiResponse.successResponseWithData(res, "Appointment update Success.", appointmentData);
+								}
 								});
-							}
 						}
 					});
 				}
@@ -218,9 +216,7 @@ exports.AppointmentDelete = [
 					return apiResponse.notFoundResponse(res,"Appointment not exists with this id");
 				}else{
 					//Check authorized appointment
-					if(foundAppointment.appointment.toString() !== req.appointment.id){
-						return apiResponse.unauthorizedResponse(res, "You are not authorized to do this operation.");
-					}else{
+					
 						//delete Appointment.
 						Appointment.findByIdAndRemove(req.params.id,function (err) {
 							if (err) { 
@@ -229,7 +225,6 @@ exports.AppointmentDelete = [
 								return apiResponse.successResponse(res,"Appointment delete Success.");
 							}
 						});
-					}
 				}
 			});
 		} catch (err) {
