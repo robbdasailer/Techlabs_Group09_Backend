@@ -158,16 +158,6 @@ exports.RestaurantUpdate = [
 	(req, res) => {
 		try {
 			const errors = validationResult(req);
-			var restaurant = new Restaurant(
-				{ 	name: req.body.name,
-					coordinates: req.body.coordinates,
-					address: req.body.address,
-					contactInformation: req.body.contactInformation,
-					picture: req.body.picture,
-					id: req.params._id,
-					employees: req.params.employees
-				});
-
 			if (!errors.isEmpty()) {
 				return apiResponse.validationErrorWithData(res, "Validation Error.", errors.array());
 			}
@@ -176,32 +166,26 @@ exports.RestaurantUpdate = [
 					return apiResponse.validationErrorWithData(res, "Invalid Error.", "Invalid ID");
 				}else{
 					Restaurant.findById(req.params.id, function (err, foundRestaurant) {
-						console.log(foundRestaurant)
 						if(foundRestaurant === null){
 							return apiResponse.notFoundResponse(res,"Restaurant not exists with this id");
 						}else{
 							// find restaurant by given id and check if the restaurant making the request is the one who created the restaurant //
-							console.log(foundRestaurant._id)
-							console.log(req.restaurant._id)
-							if(foundRestaurant._id.toString() !== req.restaurant._id){
-								return apiResponse.unauthorizedResponse(res, "You are not authorized to do this operation.");
-							}
-							else {
-								const restaurant = { 
-									name: req.body.lastName,
-									address: req.body.address,
-									contactInformation: req.body.contactInformation,
-									employees: req.body.employees,
-								};
-								User.findByIdAndUpdate(req.params.id, restaurant, {},function (err, updatedUser) {
-									if (err) { 
-									return apiResponse.ErrorResponse(res, err); 
-									}else{
-										let userData = new UserData(updatedUser);
-										return apiResponse.successResponseWithData(res,"User update Success.", userData);
+							const updatedFields = { 
+								name: req.body.name,
+								address: req.body.address,
+								contactInformation: req.body.contactInformation,
+								employees: req.body.employees,
+								picture: req.body.picture,
+							};
+							Restaurant.findByIdAndUpdate(req.params.id, updatedFields, { new: true }, function (err, updatedRestaurant) {
+								if (err) { 
+								return apiResponse.ErrorResponse(res, err); 
+								}else{
+									let restaurantData = new RestaurantData(updatedRestaurant);
+									return apiResponse.successResponseWithData(res,"Restaurant update Success.", restaurantData);
 									}
 								});
-							} 
+							
 						}
 					});
 				}
@@ -233,18 +217,13 @@ exports.RestaurantDelete = [
 					return apiResponse.notFoundResponse(res,"Restaurant not exists with this id");
 				}else{
 					//Check authorized restaurant
-					if(foundRestaurant.restaurant.toString() !== req.restaurant.id){
-						return apiResponse.unauthorizedResponse(res, "You are not authorized to do this operation.");
-					}else{
-						//delete Restaurant.
-						Restaurant.findByIdAndRemove(req.params.id,function (err) {
-							if (err) { 
-								return apiResponse.ErrorResponse(res, err); 
-							}else{
-								return apiResponse.successResponse(res,"Restaurant delete Success.");
-							}
-						});
-					}
+					Restaurant.findByIdAndRemove(req.params.id,function (err) {
+						if (err) { 
+							return apiResponse.ErrorResponse(res, err); 
+						}else{
+							return apiResponse.successResponse(res,"Restaurant delete Success.");
+						}
+					});
 				}
 			});
 		} catch (err) {
