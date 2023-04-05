@@ -10,6 +10,9 @@ var router = express.Router();
  *     FoodItem:
  *       type: object
  *       properties:
+ *         _id:
+ *           type: string
+ *           description: The unique identifier for the appointment
  *         name:
  *          type: string
  *          description: The name of the food item.
