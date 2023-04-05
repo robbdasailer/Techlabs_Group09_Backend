@@ -123,8 +123,9 @@ exports.login = [
 			}else {
 				User.findOne({email : req.body.email}).then(user => {
 					if (user) {
+						
 						//Compare given password with db's hash.
-						bcrypt.compare(req.body.password,user.password,function (err,same) {
+						bcrypt.compare(req.body.password, user.password, function (err, same) {
 							if(same){
 								//Check account confirmation.
 								if(user.isConfirmed){

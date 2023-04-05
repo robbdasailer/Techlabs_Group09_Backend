@@ -147,69 +147,41 @@ exports.UserStore = [
 
 ];
 
-/**
- * User update.
- * 
- * @param {string}      firstName 
- * @param {string}      lastName 
- * @param {string}      email
- * @param {string}      password
- * 
- * @returns {Object}
- */
 exports.UserUpdate = [
 	auth,
-	// input is validated using body method before performing the update //
 	body("lastName", "last name must not be empty.").isLength({ min: 1 }).trim(),
 	body("firstName", "first name must not be empty.").isLength({ min: 1 }).trim(),
-	// .custom((value,{req}) => {
-	// 	return User.findOne({Name : value,user: req.user._id, _id: { "$ne": req.params.id }}).then(user => {
-	// 		if (user) {
-	// 			return Promise.reject("User already exists with this name.");
-	// 		}
-	// 	});
-	// }),
-	// sanitizeBody("*").escape(),
+	body("email").isLength({ min: 1 }).trim().withMessage("Email must be specified.")
+		.isEmail().withMessage("Email must be a valid email address."),
+	body("password").isLength({ min: 1 }).trim().withMessage("Password must be specified."),
 	(req, res) => {
 		try {
 			const errors = validationResult(req);
-			var user = new User(
-				{ 	lastName: req.body.lastName,
-					firstName: req.body.firstName,
-					email: req.body.email,
-					password: req.body.password,
-					id: req.params._id
-				});
-
 			if (!errors.isEmpty()) {
 				return apiResponse.validationErrorWithData(res, "Validation Error.", errors.array());
-			}
-			else {
-				if(!mongoose.Types.ObjectId.isValid(req.params.id)){
+			} else {
+				if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
 					return apiResponse.validationErrorWithData(res, "Invalid Error.", "Invalid ID");
-				}else{
+				} else {
 					User.findById(req.params.id, function (err, foundUser) {
-						console.log(foundUser)
-						if(foundUser === null){
+						if (foundUser === null) {
 							return apiResponse.notFoundResponse(res,"User not exists with this id");
-						}else{
-							// find user by given id and check if the user making the request is the one who created the user //
-							console.log(foundUser._id)
- 							console.log(req.user._id)
-							if(foundUser._id.toString() !== req.user._id){
+						} else {
+							// check if the user making the request is the one who created the user //
+							if (foundUser._id.toString() !== req.user._id) {
 								return apiResponse.unauthorizedResponse(res, "You are not authorized to do this operation.");
-							}else{
+							} else {
 								// update user and return success or error message accordingly //
-								const user = { 
+								const updatedFields = { 
 									lastName: req.body.lastName,
 									firstName: req.body.firstName,
 									email: req.body.email,
 									password: req.body.password,
 								};
-								User.findByIdAndUpdate(req.params.id, user, {},function (err, updatedUser) {
+								User.findByIdAndUpdate(req.params.id, updatedFields, {new: true}, function (err, updatedUser) {
 									if (err) { 
 										return apiResponse.ErrorResponse(res, err); 
-									}else{
+									} else {
 										let userData = new UserData(updatedUser);
 										return apiResponse.successResponseWithData(res,"User update Success.", userData);
 									}
@@ -225,6 +197,7 @@ exports.UserUpdate = [
 		}
 	}
 ];
+
 
 /**
  * User Delete.
