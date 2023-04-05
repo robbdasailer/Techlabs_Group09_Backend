@@ -82,38 +82,21 @@ exports.UserDetail = [
  */
 body()
 exports.UserStore = [
-    body("lastName", "Last name must not be empty.").isLength({ min: 1 }).trim(),
+	    body("lastName", "Last name must not be empty.").isLength({ min: 1 }).trim(),
     body("firstName", "First name must not be empty.").isLength({ min: 1 }).trim(),
     body("email", "E-mail must not be empty.").isLength({ min: 1 }).trim(),
     body("type", "Type must not be empty.").isLength({ min: 1 }).trim(),
     body("password", "Password must fulfill conditions.").isLength({ min: 5, max: 20 }).trim(),
-    //body("confirmOTP"), // assuming that this parameter is optional
-    // body("email").custom((value, { req }) => {
-    //     return User.findOne({ email: value, user: req.user.email }).then((user) => {
-    //         if (user) {
-    //             return Promise.reject("User already exists with this e-mail.");
-    //         }
-    //     });
-    // }),
-
-// exports.UserStore = [
-// 	//auth,
-// 	body("lastName", "Name must not be empty.").isLength({ min: 1 }).trim(),
-// 	body("firstName", "Name must not be empty.").isLength({ min: 1 }).trim(),
-// 	body("email", "e-mail must not be empty.").isLength({ min: 1 }).trim(),
-// 	body("type"),
-// 	body("password", "password must fulfill conditions").isLength({ min: 5, max: 20 }).trim(),
-// 	body("confirmOTP"),//, "otp must not be empty.").isLength({ min: 1 }).trim(),
-
-// 		.custom((value,{req}) => {
-// 		return User.findOne({id : value,user: req.user.id}).then(user => {
-// 			if (user) {
-// 				return Promise.reject("User already exists with this e-mail.");
-// 			}
-// 		});
-// 		}),
+	// check if email is already used in the database
+    body("email").custom((value) => {
+        return User.findOne({ email: value }).then((user) => {
+            if (user) {
+                return Promise.reject("User already exists with this e-mail.");
+            }
+        });
+    }),
 	sanitizeBody("*").escape(), //sanitize for security reasons
-	(req, res, next) => {
+	(req, res) => {
 		try {
 			const errors = validationResult(req);
 			var user = new User(
@@ -122,6 +105,7 @@ exports.UserStore = [
 					email: req.body.email,
 					password: req.body.password,
 					type: req.body.type,
+					isConfirmed: true,
 				});
 
 			if (!errors.isEmpty()) {
@@ -135,16 +119,11 @@ exports.UserStore = [
 					return apiResponse.successResponseWithData(res,"User add Success.", userData);
 				});	
 			}
-			next()
 		} catch (err) {
 			//throw error in json response with status 500. 
 			return apiResponse.ErrorResponse(res, err);
 		}
 	},
-	(req, res)=> {
-		console.log('Hi there')
-	}
-
 ];
 
 exports.UserUpdate = [
