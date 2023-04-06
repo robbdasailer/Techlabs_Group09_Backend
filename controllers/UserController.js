@@ -3,6 +3,7 @@ const { body,validationResult } = require("express-validator");
 const { sanitizeBody } = require("express-validator");
 const apiResponse = require("../helpers/apiResponse");
 const auth = require("../middlewares/jwt");
+const bcrypt = require("bcryptjs");
 var mongoose = require("mongoose");
 mongoose.set("useFindAndModify", false);
 
@@ -97,33 +98,43 @@ exports.UserStore = [
     }),
 	sanitizeBody("*").escape(), //sanitize for security reasons
 	(req, res) => {
+		console.log("Middleware function called");
+
 		try {
 			const errors = validationResult(req);
-			var user = new User(
-				{ 	lastName: req.body.lastName,
-					firstName: req.body.firstName,
-					email: req.body.email,
-					password: req.body.password,
-					type: req.body.type,
-					isConfirmed: true,
-				});
-
 			if (!errors.isEmpty()) {
 				return apiResponse.validationErrorWithData(res, "Validation Error.", errors.array());
 			}
 			else {
-				//Save user
-				user.save(function (err) {
-					if (err) { return apiResponse.ErrorResponse(res, err); }
-					let userData = new UserData(user);
-					return apiResponse.successResponseWithData(res,"User add Success.", userData);
-				});	
+				bcrypt.hash(req.body.password,10,function(err, hash) {
+					var user = new User(
+						{
+							lastName: req.body.lastName,
+							firstName: req.body.firstName,
+							email: req.body.email,
+							password: hash,
+							type: req.body.type,
+							isConfirmed: true,
+						}
+					);
+				
+					//Save user
+					user.save(function (err) {
+						if (err) { return apiResponse.ErrorResponse(res, err); }
+						let userData = new UserData(user);
+						return apiResponse.successResponseWithData(res,"User add Success.", userData);
+					})
+				});
 			}
 		} catch (err) {
+			console.log("Error caught:", err);
+
 			//throw error in json response with status 500. 
 			return apiResponse.ErrorResponse(res, err);
 		}
-	},
+	console.log("Middleware function completed");
+
+	}
 ];
 
 exports.UserUpdate = [
