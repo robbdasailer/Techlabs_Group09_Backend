@@ -158,7 +158,7 @@ exports.UserUpdate = [
 							return apiResponse.notFoundResponse(res,"User not exists with this id");
 						} else {
 							// check if the user making the request is the one who created the user //
-							if (foundUser._id.toString() !== req.user._id) {
+							if (foundUser._id.toString() !== req.user._id || req.user.type != 'ADMIN') {
 								return apiResponse.unauthorizedResponse(res, "You are not authorized to do this operation.");
 							} else {
 								// update user and return success or error message accordingly //
@@ -208,7 +208,7 @@ exports.UserDelete = [
 					return apiResponse.notFoundResponse(res,"User not exists with this id");
 				}else{
 					//Check authorized user
-					if(foundUser._id != req.user._id){
+					if(foundUser._id != req.user._id || req.user.type != 'ADMIN'){
 						return apiResponse.unauthorizedResponse(res, "You are not authorized to do this operation.");
 					}else{
 						//delete User.
