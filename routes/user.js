@@ -80,26 +80,6 @@ router.get("/:id", UserController.UserDetail); //should not provide OTP and pass
 
 /**
  * @openapi
- * /api/user/:
- *   post:
- *     tags: [Users]
- *     summary: This adds a new user 
- *     requestBody:
- *       description: add a new user
- *       required: true
- *       content: 
- *         application/json: 
- *           schema:
- *             $ref: '#/definitions/User'
- *         
- *     responses:
- *       200:
- *         description: Returns a mysterious string.
- */
-router.post("/", UserController.UserStore);
-
-/**
- * @openapi
  * /api/user/{id}:
  *   put:
  *     security:
